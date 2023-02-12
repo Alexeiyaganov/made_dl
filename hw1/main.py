@@ -17,7 +17,7 @@ from dataset import MyDataset
 from crnn import CRNN
 
 
-os.remove(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'samples/desktop.ini'))
+#os.remove(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'samples/desktop.ini'))
 
 
 def weights_init(m):
@@ -77,7 +77,7 @@ def compute_loss(text_batch, text_batch_logits):
     return loss
 
 
-num_epochs = 5
+num_epochs = 50
 lr = 0.001
 weight_decay = 1e-3
 clip_norm = 5
@@ -155,7 +155,9 @@ with torch.no_grad():
         results_train = pd.concat([results_train, df])
 results_train = results_train.reset_index(drop=True)
 
-results_test_loadertest_loader = DataLoader(testset, batch_size=16, num_workers=0, shuffle=False)
+
+results_test = pd.DataFrame(columns=['actual', 'prediction'])
+test_loader = DataLoader(testset, batch_size=16, num_workers=0, shuffle=False)
 with torch.no_grad():
     for image_batch, text_batch in tqdm(test_loader, leave=True):
         text_batch_logits = crnn(image_batch.to('cpu'))
