@@ -10,14 +10,12 @@ import pandas as pd
 from tqdm.notebook import tqdm
 import matplotlib.pyplot as plt
 from PIL import Image
-from sklearn.metrics import accuracy_score
+# from sklearn.metrics import accuracy_score
+import torchmetrics
 
 
 from dataset import MyDataset
 from crnn import CRNN
-
-
-#os.remove(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'samples/desktop.ini'))
 
 
 def weights_init(m):
@@ -188,6 +186,8 @@ def correct_prediction(word):
 
 results_train['prediction_corrected'] = results_train['prediction'].apply(correct_prediction)
 
+results_test['prediction_corrected'] = results_test['prediction'].apply(correct_prediction)
+
 mistakes_df = results_test[results_test['actual'] != results_test['prediction_corrected']]
 
 mask = mistakes_df['prediction_corrected'].str.len() == 5
@@ -197,7 +197,8 @@ mistake_image = Image.open(mistake_image_fp)
 plt.imshow(mistake_image)
 plt.show()
 
-train_accuracy = accuracy_score(results_train['actual'], results_train['prediction_corrected'])
-print(train_accuracy)
-test_accuracy = accuracy_score(results_test['actual'], results_test['prediction_corrected'])
-print(test_accuracy)
+print("Оценка тренировочных данных по CER: ", torchmetrics.functional.char_error_rate(preds=results_train['actual'],
+                                                                                   target=results_train['prediction_corrected']))
+print("Оценка тестовых данных по CER: ", torchmetrics.functional.char_error_rate(preds=results_test['actual'],
+                                                                                   target=results_test['prediction_corrected']))
+
